@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="nl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Local grade overrides — synthetic test fixture</title>
+<link rel="stylesheet" href="../Chromium/css/mod-settings.css">
+<link rel="stylesheet" href="../Chromium/css/grade-overrides.css">
+<style>
+:root { --fg-on-primary-weak:#dceaff; --bg-elevated-none:#324666; --bg-elevated-strong:#47608a; --mod-border-neutral-normal:#556a8d; --text-strong:#e9edf5; --text-weak:#aebacd; --bg-neutral-none:#1d2737; --bg-neutral-weakest:#253349; --border-neutral-normal:#40516c; color-scheme:dark; }
+body { font:16px/1.5 system-ui; margin:32px auto; padding:0 20px; max-width:960px; background:#121a27; color:var(--text-strong); }
+sl-laatsteresultaten,sl-vakgemiddelden { display:block; margin:24px 0; padding:16px; border:1px solid #40516c; border-radius:16px; }
+sl-resultaat-item,sl-vakgemiddelde-item { display:flex; justify-content:space-between; gap:18px; padding:20px; margin:8px; background:#253349; border-radius:10px; }
+.cijfer { display:inline-block; font-weight:bold; font-size:26px; min-width:44px; text-align:center; }
+.onvoldoende { color:#f08080; } .subtitel,small { color:#aebacd; } button { padding:8px 12px; margin:4px; cursor:pointer; } hmy-avatar { display:none; } sl-dropdown { display:block; }
+</style>
+<h1>Local grade overrides</h1><p>Synthetic data only. Open an editor, save a grade, and reload to verify persistence.</p>
+<button id="run-tests">Run behavior tests</button><output id="test-result"></output>
+<hmy-avatar><img src="/pasfoto/test-school/student-a" alt="Demo profile"></hmy-avatar>
+<main id="fixtures"></main>
+<script>
+const listeners = [];
+let failWrites = false;
+const storageName = 'somtoday-grade-fixture-v1';
+const readStorage = () => JSON.parse(localStorage.getItem(storageName) || '{}');
+window.chrome = { storage: {
+    local: {
+        async get() { return readStorage(); },
+        async set(update) {
+            if (failWrites) throw new Error('Synthetic write failure');
+            const data = readStorage(), changes = {};
+            for (const [key,value] of Object.entries(update)) { changes[key]={oldValue:data[key],newValue:value}; data[key]=value; }
+            localStorage.setItem(storageName,JSON.stringify(data));
+            for (const listener of listeners) listener(changes,'local');
+        },
+        async remove(keys) {
+            if (failWrites) throw new Error('Synthetic write failure');
+            const data = readStorage(), changes = {};
+            for (const key of Array.isArray(keys)?keys:[keys]) { changes[key]={oldValue:data[key]}; delete data[key]; }
+            localStorage.setItem(storageName,JSON.stringify(data));
+            for (const listener of listeners) listener(changes,'local');
+        }
+    },
+    onChanged: {addListener(listener) { listeners.push(listener); }}
+}};
+const markup = `<sl-laatsteresultaten><h2>Laatste cijfers</h2><sl-resultaat-item><div><div class="titel">Wiskunde</div><div class="subtitel">23-09-2026 • Algebra</div><div class="weging">2x</div></div><div class="cijfer onvoldoende"><span>4,5</span></div></sl-resultaat-item><sl-resultaat-item><div><div class="titel">Engels</div><div class="subtitel">22-09-2026 • Reading</div><div class="weging">1x</div></div><div class="cijfer"><span>7,0</span></div></sl-resultaat-item></sl-laatsteresultaten><sl-vakgemiddelden><h2>Vakgemiddelden</h2><sl-dropdown>Leerjaar 3 - 2026/2027</sl-dropdown><sl-vakgemiddelde-item><div class="vak"><span>Wiskunde</span></div><sl-vakgemiddelde-item-cijfer type="rapportcijfer" aria-label="Rapportcijfer 5,2"><div class="gemiddelde"><span class="cijfer onvoldoende">5,2</span></div></sl-vakgemiddelde-item-cijfer></sl-vakgemiddelde-item></sl-vakgemiddelden>`;
+document.getElementById('fixtures').innerHTML = markup;
+</script>
+<script src="../Chromium/scripts/grade_overrides.js"></script>
+<script>
+const settle = () => new Promise(resolve => setTimeout(resolve,100));
+const $ = selector => document.querySelector(selector);
+const value = selector => $(selector).getAttribute('data-mod-grade-value');
+const recent = 'sl-resultaat-item .cijfer';
+const average = 'sl-vakgemiddelden .cijfer';
+SomtodayGradeOverrides.start();
+document.getElementById('run-tests').onclick = async () => {
+    let passed = 0;
+    const assert = (condition, label) => { if (!condition) throw new Error(label); passed++; };
+    const open = () => $('.mod-grade-toolbar button').click();
+    const close = () => $('#mod-grade-dialog').close();
+    const save = async (index, grade) => {
+        const form = document.querySelectorAll('.mod-grade-row')[index];
+        form.querySelector('input').value = grade;
+        form.requestSubmit(); await settle();
+    };
+    try {
+        await chrome.storage.local.remove(Object.keys(readStorage())); await settle();
+        open(); await save(0,'8.5');
+        assert(value(recent)==='8,5','recent override applied');
+        assert($(recent).textContent==='4,5','source grade remains unchanged');
+        assert($(recent).getAttribute('aria-label').includes('lokaal'),'accessible local marker');
+        await save(2,'7,8');
+        assert(value(average)==='7,8','subject average applied independently');
+        await save(0,'99');
+        assert(value(recent)==='8,5','invalid grade rejected');
+        failWrites=true; await save(0,'9,5'); failWrites=false;
+        assert(value(recent)==='8,5','failed save preserves previous grade');
+        close(); await settle();
+        const card = $('sl-resultaat-item'); card.parentElement.append(card); await settle();
+        assert(card.querySelector('.cijfer').getAttribute('data-mod-grade-value')==='8,5','reordering preserves identity');
+        document.getElementById('fixtures').innerHTML=markup; await settle();
+        assert(value(recent)==='8,5' && value(average)==='7,8','SPA remount reapplies overrides');
+        $(recent).querySelector('span').textContent='5,0'; await settle();
+        assert(value(recent)==='8,5','native rerender does not erase override');
+        $('sl-dropdown').textContent='Leerjaar 2 - 2025/2026'; await settle();
+        assert(value(average)===null,'different school year isolated');
+        $('sl-dropdown').textContent='Leerjaar 3 - 2026/2027'; await settle();
+        assert(value(average)==='7,8','returning school year restored');
+        $('hmy-avatar img').src='/pasfoto/test-school/student-b'; await settle();
+        assert(value(recent)===null && value(average)===null,'other account isolated');
+        $('hmy-avatar img').src='/pasfoto/test-school/student-a'; await settle();
+        assert(value(recent)==='8,5','returning account restored');
+        const duplicate=$('sl-resultaat-item').cloneNode(true); $('sl-laatsteresultaten').append(duplicate); await settle();
+        // Clone simulates native DOM, without extension paint attributes.
+        duplicate.querySelector('.cijfer').removeAttribute('data-mod-grade-value');
+        assert(value(recent)===null,'ambiguous cards skipped');
+        duplicate.remove(); await settle();
+        open(); $('.mod-grade-toggle input').click(); await settle();
+        assert(value(recent)===null && value(average)===null,'disable restores native view');
+        $('.mod-grade-toggle input').click(); await settle();
+        assert(value(recent)==='8,5','enable restores saved override');
+        $('.mod-grade-row button[type=button]').click(); await settle();
+        assert(value(recent)===null && $(recent).textContent==='5,0','single reset shows latest native value');
+        $('.mod-grade-footer button').click(); await settle();
+        assert(value(average)===null,'reset all clears average');
+        assert(!Object.keys(readStorage()).some(k=>k.startsWith('mod_grade_override_v1:')),'reset all clears persistent data');
+        close(); await settle();
+        $('#test-result').textContent=`${passed} checks passed`;
+    } catch (error) { failWrites=false; $('#test-result').textContent=`FAILED after ${passed}: ${error.message}`; }
+};
+</script></html>

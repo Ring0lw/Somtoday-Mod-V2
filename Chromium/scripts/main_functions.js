@@ -15,6 +15,8 @@ function onload() {
     const selectedQuestion = Math.floor(Math.random() * mathQuestions.length);
     tn('body', 0).insertAdjacentHTML('beforeend', '<div id="somtoday-mod"><div id="somtoday-mod-active" data-platform="' + platform + '" data-version="' + version + '"><!-- Well hello there! Great work, detective. --><!-- Nothing better to do? Solve this math question: ' + mathQuestions[selectedQuestion] + ' --><div data-info="expand-to-view-answer"><!-- ' + mathAnswers[selectedQuestion] + ' --></div></div></div>');
 
+    void SomtodayGradeOverrides.start();
+
     // Stop script if 502 error occurs
     if (cn('cf-error-details cf-error-502', 0)) {
         setTimeout(console.warn.bind(console, 'SOMTODAY MOD: Bad gateway (502)'));
@@ -88,17 +90,6 @@ function onload() {
             const html = document.documentElement;
             html.classList.remove('light', 'dark', 'night');
             html.classList.add(theme);
-        }
-    }
-
-    function editGrades() {
-        // Change to true to be able to edit your grades. Not added by default to prevent students from misleading their parents.
-        // If you see this, you are smart enough to know how inspect element works, so just enable it if you want to.
-        if (false) {
-            for (const element of cn('cijfer')) {
-                element.contentEditable = true;
-                element.addEventListener('click', function (event) { this.focus(); event.stopPropagation(); });
-            }
         }
     }
 
@@ -6409,7 +6400,7 @@ function onload() {
         }
         darkmode = tn('html', 0).classList.contains('dark') || tn('html', 0).classList.contains('night');
         busy = true;
-        execute([gradeReveal, userName, teacherNicknames, insertModSettingLink, insertGradeDownloadButton, subjectGradesPage, somtodayRecap, rosterSimplify, newYearCountdown, topMenu, easterEggs, editGrades, browserSettings, initTheme]);
+        execute([gradeReveal, userName, teacherNicknames, insertModSettingLink, insertGradeDownloadButton, subjectGradesPage, somtodayRecap, rosterSimplify, newYearCountdown, topMenu, easterEggs, browserSettings, initTheme]);
         if (updateStyle) {
             execute([updateCssVariables]);
         }

@@ -15,6 +15,7 @@ De oorspronkelijke maker, Jona Zwetsloot, heeft geen toegang meer tot Somtoday. 
 - Ook het Somtoday Mod-instellingenmenu en de mod-dialogen krijgen glas.
 - De bestaande UI-transparantie en UI-blur werken nu ook op zijpanelen en modals.
 - Ondersteuning voor lichte, donkere en Night-kleurpaletten. Tekst en iconen blijven scherp.
+- Lokale cijferwijzigingen voor **Laatste cijfers** en **Vakgemiddelden**, opgeslagen op deze browser en behouden na vernieuwen.
 
 De aanpassingen zitten momenteel alleen in de **Chromium-versie** (Chrome, Edge en Helium). Firefox, Android en het userscript bevatten nog de oorspronkelijke versie.
 
@@ -27,6 +28,18 @@ De aanpassingen zitten momenteel alleen in de **Chromium-versie** (Chrome, Edge 
 5. Herlaad Somtoday. Stel de bestaande UI-schuifjes in of gebruik **Mod-instellingen → Glaseffect** voor instellingen per onderdeel.
 
 De wijzigingen zijn lokaal getest; volledige validatie van de geïnstalleerde extensie op alle Somtoday-pagina's staat nog open.
+
+## Lokale cijfers aanpassen
+
+Open **Cijfers → Laatste cijfers** of **Vakgemiddelden** en klik op **Lokale cijfers aanpassen**. Vul een cijfer of letterbeoordeling in en kies **Opslaan**. Een opgeslagen wijziging wordt direct zichtbaar, krijgt een klein label **lokaal** en blijft staan na vernieuwen of herstarten van de browser.
+
+- **Herstellen** verwijdert één wijziging; **Alle lokale cijfers herstellen** verwijdert alle wijzigingen voor dit profiel, inclusief andere schooljaren.
+- Met **Lokale wijzigingen tonen** kun je de originele weergave tijdelijk terugzetten zonder je wijzigingen te wissen.
+- Vakgemiddelden stel je apart in. De officiële gegevens, berekeningen en cijferexports blijven ongewijzigd; er wordt niets naar Somtoday verstuurd.
+- Wijzigingen staan alleen in de lokale extensieopslag. Ze worden niet gesynchroniseerd en zitten niet in de export van Mod-instellingen. Verwijderen van de extensie wist ze.
+- Profielen worden herkend aan de Somtoday-profielfoto-URL. Zonder geladen profielfoto wordt aanpassen uitgeschakeld. Bij een gewijzigde foto-URL moet je wijzigingen mogelijk opnieuw instellen. Schooljaar, vak, beoordelingstype en toetsomschrijving onderscheiden de cijfers; onbekende of dubbele kaarten worden overgeslagen. Een wijziging van deze kenmerken kan opnieuw instellen nodig maken.
+
+De tests gebruiken fictieve cijfers: `node --test tests/*.test.cjs` voor validatie en `tests/grade-overrides-preview.html` via een lokale webserver voor de browsertests. Vernieuwen, opnieuw geladen kaarten, herstellen, profiel- en schooljaarscheiding zijn getest. De actuele Vakgemiddelden-structuur is gecontroleerd; Laatste cijfers bevatte tijdens de controle geen cijfers en is met een representatieve testpagina getest.
 
 ## Herkomst en licentie
 
