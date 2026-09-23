@@ -31,7 +31,7 @@ De wijzigingen zijn lokaal getest; volledige validatie van de geïnstalleerde ex
 
 ## Lokale cijfers aanpassen
 
-Open **Cijfers → Laatste cijfers** of **Vakgemiddelden** en klik op **Lokale cijfers aanpassen**. Vul een cijfer of letterbeoordeling in en kies **Opslaan**. Een opgeslagen wijziging wordt direct zichtbaar, krijgt een klein label **lokaal** en blijft staan na vernieuwen of herstarten van de browser.
+Open **Cijfers → Laatste cijfers** of **Vakgemiddelden** en klik op **Lokale cijfers aanpassen**. Vul een cijfer of letterbeoordeling in en kies **Opslaan**. Een opgeslagen wijziging wordt direct zichtbaar zonder extra achtergrond of label onder het cijfer en blijft staan na vernieuwen of herstarten van de browser. De tooltip vermeldt de lokale wijziging en het originele cijfer.
 
 - **Herstellen** verwijdert één wijziging; **Alle lokale cijfers herstellen** verwijdert alle wijzigingen voor dit profiel, inclusief andere schooljaren.
 - Met **Lokale wijzigingen tonen** kun je de originele weergave tijdelijk terugzetten zonder je wijzigingen te wissen.

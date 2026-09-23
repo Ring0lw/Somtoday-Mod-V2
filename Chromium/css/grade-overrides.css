@@ -1,15 +1,11 @@
 .mod-grade-toolbar { padding: 12px 16px; }
-[data-mod-grade-value] { position: relative !important; color: transparent !important; }
-[data-mod-grade-value] * { color: transparent !important; }
+[data-mod-grade-value] { position: relative !important; color: transparent !important; text-shadow: none !important; }
+[data-mod-grade-value] * { color: transparent !important; text-shadow: none !important; }
 [data-mod-grade-value]::after {
     content: attr(data-mod-grade-value); position: absolute; inset: 0;
     display: grid; place-items: center; color: var(--text-strong, #202630);
-    background: var(--bg-neutral-weakest, #eef1f6); border-radius: 4px;
+    background: transparent; box-shadow: none; text-shadow: none;
     font: inherit; min-width: max-content;
-}
-[data-mod-grade-value]::before {
-    content: 'lokaal'; position: absolute; right: 0; top: 100%;
-    color: var(--text-weak, #526071); font: 10px/1.2 sans-serif;
 }
 .mod-grade-dialog {
     box-sizing: border-box; width: min(720px, 94vw); max-height: 85vh; overflow: auto;
