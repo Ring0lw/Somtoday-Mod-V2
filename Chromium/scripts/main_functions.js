@@ -864,7 +864,7 @@ function onload() {
     const settingKeys = ['primarycolor', 'secondarycolor', 'nicknames', 'bools', 'title', 'icon', 'background', 'backgroundtype', 'backgroundcolor', 'livetype', 'livecolor1', 'livecolor2', 'livecolor3', 'ui', 'uiblur', 'fontname', 'theme', 'preset', 'layout', 'profilepic', 'username', 'brightness', 'contrast', 'saturate', 'opacity', 'huerotate', 'grayscale', 'sepia', 'invert', 'blur', 'homework', 'menuwidth', 'isbackgroundvideo', 'customfont', 'customfontname', 'letterbeoordelingen', 'customcss'];
     function exportSettings() {
         let settings = {};
-        for (const key of settingKeys) {
+        for (const key of [...settingKeys, ...SomtodayGlass.keys]) {
             settings[key] = get(key);
         }
         let i = 0;
@@ -902,6 +902,9 @@ function onload() {
 
     // Ensure the new value is valid
     async function keyIsValid(key, value) {
+        if (SomtodayGlass.keys.includes(key)) {
+            return SomtodayGlass.valid(key, value);
+        }
         if (value == null) {
             return false;
         }
@@ -1030,7 +1033,7 @@ function onload() {
             let closeModMessages = true;
             modMessage('Laden...', 'Dit kan even duren als je veel afbeeldingen hebt ingesteld...');
             Object.keys(json).forEach(async function (key) {
-                if (settingKeys.includes(key)) {
+                if (settingKeys.includes(key) || SomtodayGlass.keys.includes(key)) {
                     const isValid = await keyIsValid(key, json[key]);
                     if (isValid) {
                         set(key, json[key]);
@@ -1402,7 +1405,7 @@ function onload() {
             tn('head', 0).insertAdjacentHTML('beforeend', '<style class="mod-style">@import url("' + fontUrl + '");@font-face{font-family:modCustomFont;src:url("' + get('customfont') + '");}*{font-family:modCustomFont,"Open Sans",sans-serif !important;}</style>');
         }
         // Make sure everything is readable with background with 100% ui transparency
-        if (get('layout') != 4 && ((get('backgroundtype') == 'image' && !n(get('background'))) || (get('backgroundtype') == 'color') || (get('backgroundtype') == 'slideshow' && !n(get('background0'))) || get('backgroundtype') == 'live')) {
+        if (!SomtodayGlass.enabled(get) && get('layout') != 4 && ((get('backgroundtype') == 'image' && !n(get('background'))) || (get('backgroundtype') == 'color') || (get('backgroundtype') == 'slideshow' && !n(get('background0'))) || get('backgroundtype') == 'live')) {
             tn('head', 0).insertAdjacentHTML('beforeend', '<style class="mod-style">hmy-switch-group:has(hmy-switch),sl-bericht-detail .header,sl-bericht-nieuw > .titel{border-radius:6px;padding:10px;background-color:var(--bg-neutral-none);}.content:has(sl-registraties){background:var(--mod-transparent);}sl-studiewijzer-week{border-bottom:2px solid var(--mod-transparent) !important;}sl-studiewijzer-dag{border-right:2px solid var(--mod-transparent) !important;}' + (get('bools').charAt(BOOL_INDEX.ROSTER_GRID) == '1' ? 'sl-rooster-week .uur{border-left:2px solid var(--mod-transparent) !important;border-bottom:2px solid var(--mod-transparent) !important;}' : '') + '.container:has(sl-vakresultaten){padding-bottom:0 !important;}sl-vakresultaten{background-color:var(--bg-neutral-none);padding:20px !important; padding-bottom:40px !important;}hmy-geen-data > span{margin-top:20px;}hmy-geen-data{background:var(--mod-ui-transparent);padding:30px 60px;border-radius:24px;}</style>');
         }
         // Adjust menu for layouts
@@ -1420,7 +1423,7 @@ function onload() {
             tn('head', 0).insertAdjacentHTML('beforeend', '<style class="mod-style">.container{max-width:100%;}sl-header sl-tab-bar div.item span,sl-tab-bar sl-tab-item .item span{text-overflow:ellipsis;overflow:hidden;text-wrap:nowrap;margin-left:-5px;width:calc(100% + 10px);}sl-tab-bar sl-tab-item .item span{' + (get('layout') == 3 ? 'margin-left:5px;' : '') + 'width:calc(100% - 10px);text-align:center;}#mod-menu-resizer{width:12px;height:100%;' + (get('layout') == 3 ? 'left' : 'right') + ':-4px;position:absolute;cursor:ew-resize;}sl-tab-bar sl-tab-item .item{padding-bottom:0 !important;max-height:100%;}sl-rooster-dag.dag{width:calc(100vw - 170px) !important;}hmy-notification-counter span{margin:0 !important;}sl-header hmy-notification-counter{position:absolute;right:30px;top:20px;}sl-tab-bar:first-of-type sl-tab-item{position:relative;max-height:calc(25% - 50px);}.active-border-top,.active-border-bottom{top:0;height:100% !important;width:4px !important;position:absolute;' + (get('layout') != 3 ? 'right' : 'left') + ':0;}sl-sidebar{height:100% !important;}.active-border{display:none !important;}sl-rooster-week.week{width:calc(100% - 55px) !important;}sl-sidebar-page{padding-right:0 !important;}sl-header > div:first-of-type i{z-index:10000;--fg-on-primary-weak:' + menuColor + ';--action-neutral-strong:' + menuColor + ';}sl-header > div:first-of-type{--bg-neutral-weakest:' + highLightColor + '}@media (max-height:670px){#mod-logo-wrapper{height:90px;}}@media (max-height:600px){#mod-logo-wrapper{display:none;}sl-tab-bar:first-of-type sl-tab-item{max-height:calc(25% - 20px) !important;}}</style>');
         }
         else if (get('layout') == 4) {
-            tn('head', 0).insertAdjacentHTML('beforeend', '<style class="mod-style">:root{--safe-area-inset-left:calc((100% - 1200px) / 2) !important;--safe-area-inset-right:calc((100% - 1200px) / 2) !important;}#mod-background{left:0;width:100%;}sl-home{position:relative;border:var(--thinnest-solid-neutral-normal);display:block;background:var(--bg-neutral-none) !important;' + (get('ui') == 0 ? '' : 'backdrop-filter:blur(' + get('uiblur') + 'px);') + '}sl-rooster-week.week{width:calc(100% - 55px) !important;}</style>');
+            tn('head', 0).insertAdjacentHTML('beforeend', '<style class="mod-style">:root{--safe-area-inset-left:calc((100% - 1200px) / 2) !important;--safe-area-inset-right:calc((100% - 1200px) / 2) !important;}#mod-background{left:0;width:100%;}sl-home{position:relative;border:var(--thinnest-solid-neutral-normal);display:block;background:var(--bg-neutral-none) !important;' + (SomtodayGlass.enabled(get) || get('ui') == 0 ? '' : 'backdrop-filter:blur(' + get('uiblur') + 'px);') + '}sl-rooster-week.week{width:calc(100% - 55px) !important;}</style>');
         }
         // Position menu relatively
         if (get('bools').charAt(BOOL_INDEX.MENU_ALWAYS_SHOW) == '0') {
@@ -1692,9 +1695,11 @@ function onload() {
     let uiValue;
     let uiBlurValue;
     let layoutValue;
+    let glassEnabledValue;
     function updateCssVariables() {
+        SomtodayGlass.update(get);
         // Do not update CSS variables when nothing relevant changed
-        if (!n(primaryColorValue) && primaryColorValue == get('primarycolor') && secondaryColorValue == get('secondarycolor') && darkModeValue == (tn('html', 0).classList.contains('dark') || tn('html', 0).classList.contains('night')) && uiValue == get('ui') && uiBlurValue == get('uiblur') && layoutValue == get('layout')) {
+        if (!n(primaryColorValue) && primaryColorValue == get('primarycolor') && secondaryColorValue == get('secondarycolor') && darkModeValue == (tn('html', 0).classList.contains('dark') || tn('html', 0).classList.contains('night')) && uiValue == get('ui') && uiBlurValue == get('uiblur') && layoutValue == get('layout') && glassEnabledValue === SomtodayGlass.enabled(get)) {
             return;
         }
         primaryColorValue = get('primarycolor');
@@ -1704,9 +1709,10 @@ function onload() {
         uiValue = get('ui');
         uiBlurValue = get('uiblur');
         layoutValue = get('layout');
+        glassEnabledValue = SomtodayGlass.enabled(get);
         tryRemove(id('mod-css-variables'));
         tryRemove(id('mod-css-variables-2'));
-        if (get('ui') != 0 || get('backgroundtype') == 'live') {
+        if (!glassEnabledValue && (get('ui') != 0 || get('backgroundtype') == 'live')) {
             tn('head', 0).insertAdjacentHTML('beforeend', '<style id="mod-css-variables-2">sl-vakgemiddelden sl-dropdown,sl-cijfer-overzicht sl-dropdown{background:var(--bg-neutral-none);margin-top:-5px;margin-bottom:-5px;}' + (get('uiblur') == 0 ? '' : '.nieuw-bericht-form hmy-popup{top:70px !important;left:70px !important;}sl-plaatsingen,.nieuw-bericht-form,sl-header,sl-laatste-resultaat-item,sl-vakresultaat-item,.berichten-lijst,.vakken,' + (get('layout') == '4' ? '' : 'sl-vakresultaten,hmy-geen-data,hmy-switch-group:has(hmy-switch),sl-bericht-detail .header,sl-bericht-nieuw > .titel,') + '.headers-container,.tabs,sl-studiewijzer-week:has(.datum.vandaag),#mod-top-menu,sl-home > * > sl-tab-bar.show,sl-dagen-header,sl-scrollable-title,sl-studiewijzer-weken-header,sl-cijfer-overzicht-voortgang>div,sl-rooster-tijden{backdrop-filter:blur(' + get('uiblur') + 'px);}') + '@media(max-width:767px){sl-laatste-resultaat-item{backdrop-filter:none;}sl-laatsteresultaten{backdrop-filter:blur(' + get('uiblur') + 'px);}}:root, :root.dark.dark {--thinnest-solid-neutral-strong:1px solid transparent !important;--text-weakest:var(--text-weak);--border-neutral-normal:transparent;' + ((darkmode && get('ui') > 0.9) ? '--text-weak:#fff;' : '') + '--bg-neutral-none:' + (darkmode ? 'rgba(0,0,0,' + (1 - (get('ui') / 100)) + ')' : 'rgba(255,255,255,' + (1 - (get('ui') / 100)) + ')') + ';--bg-neutral-weakest:' + (darkmode ? 'rgba(0, 0, 0, ' + (1 - (get('ui') / 100)) + ')' : 'rgba(255, 255, 255, ' + (1 - (get('ui') / 100)) + ')') + ';}.mod-multi-choice,input:not(:hover):not(:focus):not(.mod-color-textinput):not(.ng-pristine):not(.ng-dirty),textarea:not(:hover):not(:focus):not(.ng-pristine):not(.ng-dirty),.select-selected{border:1px solid rgba(0,0,0,0.1) !important;}hmy-toggle .toggle:not(:has(input:checked)) .slider{border:2px solid rgba(0,0,0,0.1) !important;}sl-dag-header-tab,.periode-icon{background:none !important;}@media (max-width:767px){' + (platform == 'Android' ? 'sl-rooster-item{margin-left:8px;}' : '') + 'sl-vakgemiddelden sl-dropdown,sl-cijfer-overzicht sl-dropdown{margin-top:10px;}}</style>');
         }
         // If at least one of the colors is not set to the default value, modify Somtoday color variables
@@ -5133,8 +5139,9 @@ function onload() {
                 '{{display_bg_color}}': get('backgroundtype') == 'color' ? 'block' : 'none',
                 '{{display_bg_live}}': get('backgroundtype') == 'live' ? 'block' : 'none',
                 '{{addSetting_backgroundcolor}}': addSetting('Achtergrondkleur', null, 'backgroundcolor', 'color', darkmode ? '#20262d' : '#ffffff'),
-                '{{addSetting_ui_transparency}}': night ? '<div class="br"></div><div class="mod-info-notice">' + window.getIcon('circle-info', null, 'var(--fg-on-primary-weak)', 'style="height: 20px;"') + 'Somtoday Mod Night mode ondersteunt momenteel geen UI transparantie en/of blur.</div>' : addSetting('UI-transparantie', 'Verander de transparantie van de UI.', 'ui', 'range', get('ui'), 0, 100, 1, true, 'image', 'opacity'),
+                '{{addSetting_ui_transparency}}': night ? '<div class="br"></div><div class="mod-info-notice">' + window.getIcon('circle-info', null, 'var(--fg-on-primary-weak)', 'style="height: 20px;"') + 'De bestaande UI-transparantie en UI-blur ondersteunen Night niet. Gebruik de sectie Glaseffect voor transparantie en blur in Night.</div>' : addSetting('UI-transparantie', 'Verander de transparantie van de UI.', 'ui', 'range', get('ui'), 0, 100, 1, true, 'image', 'opacity'),
                 '{{addSetting_ui_blur}}': night ? '' : addSetting('UI-blur', 'Verander de blur van de UI.', 'uiblur', 'range', get('uiblur'), 0, 100, 1, true, 'image', 'blur'),
+                '{{glass_settings}}': SomtodayGlass.render(get),
                 '{{layout_1}}': '<div tabindex="0" class="layout-container' + (get('layout') == 1 ? ' layout-selected' : '') + '" id="layout-1"><div style="width:94%;height:19%;top:4%;left: 3%;"></div><div style="width:94%;height:68%;top:27%;left:3%;"></div><h3>Standaard</h3></div>',
                 '{{layout_2}}': '<div tabindex="0" class="layout-container' + (get('layout') == 2 ? ' layout-selected' : '') + '" id="layout-2"><div style="width: 16%; height: 92%; top: 4%; left: 3%;"></div><div style="width: 75%; height: 92%; right: 3%; top: 4%;"></div><h3>Sidebar links</h3></div>',
                 '{{layout_3}}': '<div tabindex="0" class="layout-container' + (get('layout') == 3 ? ' layout-selected' : '') + '" id="layout-3"><div style="width:75%;height:92%;left:3%;top:4%;"></div><div style="width:16%;height:92%;right:3%;top:4%;"></div><h3>Sidebar rechts</h3></div>',
@@ -5211,6 +5218,7 @@ function onload() {
 
             // Insert the HTML
             tn('sl-account-modal', 0).getElementsByClassName('content')[0].children[0].insertAdjacentHTML('beforeend', settingsContent);
+            SomtodayGlass.bind();
 
             for (const element of cn('mod-game')) {
                 element.addEventListener('click', function () {
@@ -5870,7 +5878,10 @@ function onload() {
             set('fontname', id('mod-font-select').value);
         }
         for (const element of cn('mod-custom-setting')) {
-            if (element.type == 'checkbox' && element.id.indexOf('bools') != -1) {
+            if (SomtodayGlass.keys.includes(element.id)) {
+                const value = element.type === 'checkbox' ? element.checked : element.value;
+                if (SomtodayGlass.valid(element.id, value)) set(element.id, value);
+            } else if (element.type == 'checkbox' && element.id.indexOf('bools') != -1) {
                 set('bools', get('bools').replaceAt(parseInt(element.id.charAt(5) + element.id.charAt(6)), element.checked ? '1' : '0'));
             } else if (element.type == 'checkbox' || element.type == 'range' || element.type == 'text' || element.type == 'password' || element.type == 'number' || element.type == 'color' || element.tagName == 'TEXTAREA') {
                 set(element.id, element.value);
@@ -6040,6 +6051,7 @@ function onload() {
 
     // Reset all settings
     function reset() {
+        for (const [key, value] of Object.entries(SomtodayGlass.defaults)) set(key, value);
         set('primarycolor', '#0067c2');
         set('secondarycolor', '#e69b22');
         set('nicknames', '[]');

@@ -1,3 +1,35 @@
+# Somtoday Mod V2
+
+Fork van [Somtoday Mod](https://github.com/Jona-Zwetsloot/Somtoday-Mod), met uitgebreid instelbare transparantie en achtergrondvervaging voor Somtoday.
+
+## Nieuw in deze fork
+
+- Transparantie en blur per onderdeel: rooster, cijfers, berichten, navigatie, detailvakken en meer.
+- Glaseffect op volledige desktopzijpanelen en pop-ups, inclusief de buitenste achtergrond en lege ruimte.
+- Ook het Somtoday Mod-instellingenmenu en de mod-dialogen krijgen glas.
+- De bestaande UI-transparantie en UI-blur werken nu ook op zijpanelen en modals.
+- Ondersteuning voor lichte, donkere en Night-kleurpaletten. Tekst en iconen blijven scherp.
+
+De aanpassingen zitten momenteel alleen in de **Chromium-versie** (Chrome, Edge en Helium). Firefox, Android en het userscript bevatten nog de oorspronkelijke versie.
+
+## Installeren
+
+1. Download deze repository via **Code → Download ZIP** en pak het bestand uit, of clone de repository.
+2. Open `chrome://extensions` (Chrome/Helium) of `edge://extensions` (Edge).
+3. Schakel een eventueel bestaand exemplaar van Somtoday Mod uit. Exporteer vooraf je Mod-instellingen als je die wilt overnemen.
+4. Zet ontwikkelaarsmodus aan, kies **Uitgepakte extensie laden** en selecteer de map **Chromium** uit deze repository.
+5. Herlaad Somtoday. Stel de bestaande UI-schuifjes in of gebruik **Mod-instellingen → Glaseffect** voor instellingen per onderdeel.
+
+Zie [GLASEFFECT.md](GLASEFFECT.md) voor de opties, tests en bekende beperkingen. De wijzigingen zijn lokaal getest; volledige validatie van de geïnstalleerde extensie op alle Somtoday-pagina's staat nog open.
+
+## Herkomst en licentie
+
+Gebaseerd op het werk van Jona Zwetsloot en de oorspronkelijke bijdragers. De oorspronkelijke [CC BY-NC-SA 4.0-licentie](LICENSE.md) blijft van toepassing. Deze fork is niet verbonden aan Somtoday/Topicus.
+
+## Oorspronkelijke documentatie
+
+Onderstaande winkel- en releaselinks horen bij het oorspronkelijke project; ze installeren niet deze V2-fork.
+
 # Somtoday Mod
 Somtoday Mod is a free browser-extension which adjusts the student website of Somtoday. With Somtoday Mod you can customise your Somtoday by setting your own backgrounds, colors, fonts, layouts and more. It also improves the functionality of Somtoday, by adding graphs to the grades pages and offering an auto-login function. At the end of the year you can view a recap of your grades with a fun quiz. And do you want to change the names of your teacher? This is also possible with Somtoday Mod, alongside many other options. Somtoday Mod is available in the Chrome Webstore, Edge Addons and Firefox Add-ons as extension. It is also available as userscript. Somtoday Mod is not affiliated with Somtoday/Topicus.
 

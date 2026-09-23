@@ -1,0 +1,18 @@
+#mod-glass-settings { max-width: 760px; }
+#mod-setting-panel #mod-glass-settings p { display: block; max-width: none; line-height: 1.5; }
+#mod-glass-settings .mod-glass-hint { color: var(--text-moderate); }
+#mod-glass-settings fieldset { border: 1px solid var(--border-neutral-normal); border-radius: 12px; margin: 20px 0; padding: 16px; min-width: 0; }
+#mod-glass-settings legend { padding: 0 8px; font-weight: 700; }
+#mod-glass-settings fieldset:disabled { opacity: .6; }
+#mod-glass-settings .mod-glass-check { display: flex; align-items: center; gap: 12px; padding: 10px 0; cursor: pointer; }
+#mod-glass-settings input[type="checkbox"] { appearance: auto; width: 20px; height: 20px; flex: 0 0 20px; margin: 0; accent-color: var(--action-primary-normal); }
+#mod-glass-settings .mod-glass-range { display: grid; grid-template-columns: 110px minmax(60px, 1fr) 55px; gap: 12px; align-items: center; margin: 16px 0; }
+#mod-glass-settings input[type="range"] { width: 100% !important; min-width: 0; margin: 0; }
+#mod-glass-settings output { text-align: right; font-variant-numeric: tabular-nums; }
+#mod-glass-settings .mod-glass-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0 20px; }
+#mod-glass-settings input:focus-visible { outline: 2px solid var(--action-primary-normal); outline-offset: 3px; }
+@media (max-width: 480px) {
+    #mod-glass-settings .mod-glass-range { grid-template-columns: 1fr 55px; gap: 8px; }
+    #mod-glass-settings .mod-glass-range > span { grid-column: 1 / -1; }
+    #mod-glass-settings .mod-glass-groups { grid-template-columns: 1fr; }
+}

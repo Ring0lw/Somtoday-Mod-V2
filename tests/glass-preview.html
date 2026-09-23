@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="nl">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Somtoday Mod — glaseffect testen</title>
+<link rel="stylesheet" href="../Chromium/css/mod-settings.css">
+<link rel="stylesheet" href="../Chromium/css/glass-settings.css">
+<style>
+    :root { --bg-mask-normal:rgba(0,0,0,.5); --bg-elevated-weakest:#f2f4f7; }
+    :root.dark { --bg-elevated-weakest:#2a3137; }
+    :root.night { --bg-mask-normal:rgba(0,0,0,.9); --bg-elevated-weakest:#141414; }
+    :root { --bg-neutral-none:#fff; --bg-neutral-weakest:#f2f4f7; --bg-elevated-none:#fff; --bg-primary-weakest:#d7eaff; --bg-primary-weak:#b4d7fa; --bg-positive-weakest:#d4eed5; --bg-negative-weakest:#f7d5d2; --bg-primary-strong:#0067c2; --action-primary-normal:#0067c2; --text-moderate:#374048; --border-neutral-normal:#c5ced6; color:#182330; font:16px system-ui; }
+    :root.dark { --bg-neutral-none:#181c20; --bg-elevated-none:#20262d; --bg-neutral-weakest:#2a3137; --bg-primary-weakest:#1a344d; --bg-primary-weak:#244766; --bg-positive-weakest:#133914; --bg-negative-weakest:#4d221a; --bg-primary-strong:#66b4ff; --action-primary-normal:#66b4ff; --text-moderate:#c2cbd6; --border-neutral-normal:#566474; color:#f3f7fa; }
+    :root.night { --bg-neutral-none:#000; --bg-elevated-none:#000; --bg-neutral-weakest:#151515; --bg-primary-weakest:#222; --bg-primary-weak:#333; --bg-positive-weakest:#153b20; --bg-negative-weakest:#3a1716; --bg-primary-strong:#90bfff; --action-primary-normal:#90bfff; --text-moderate:#ccc; --border-neutral-normal:#444; color:#fff; }
+    body { margin:0; background:linear-gradient(120deg,#768fea,#d8a5b9 45%,#5cc6bd); min-height:100vh; }
+    main { max-width:1250px; margin:auto; padding:24px; }
+    .intro { background:#fff; color:#182330; padding:20px; border-radius:16px; margin-bottom:20px; }
+    h1 { font-size:24px; margin:0 0 12px; } p { line-height:1.5; }
+    .grid { display:grid; grid-template-columns:minmax(280px,1fr) minmax(340px,1fr); gap:24px; align-items:start; }
+    sl-home,sl-rooster,sl-cijfers,sl-studiewijzer,sl-berichten,sl-modal,sl-tab-bar,sl-header,sl-dagen-header,sl-scrollable-title,hmy-geen-data { display:block; }
+    sl-header,sl-dagen-header,sl-tab-bar,sl-rooster-item,sl-studiewijzer-item,sl-vakresultaat-item,sl-bericht-samenvatting,hmy-geen-data,.content-container { display:block; padding:18px; margin-bottom:14px; border:1px solid var(--border-neutral-normal); border-radius:12px; background:var(--bg-neutral-none); }
+    sl-rooster-item { background:var(--bg-primary-weakest); border-left:4px solid #66b4ff; }
+    sl-rooster-item:hover { background:var(--bg-primary-weak); }
+    sl-rooster-item.cancelled { background:var(--bg-negative-weakest); }
+    sl-studiewijzer-item { background:var(--bg-positive-weakest); }
+    sl-modal .content-container { background:var(--bg-elevated-none); }
+    sl-modal .header { background:var(--bg-elevated-none); }
+    sl-sidebar { display:block; margin:24px 0; }
+    sl-sidebar > .background { background:var(--bg-mask-normal); }
+    sl-sidebar > .content-container { background:var(--bg-elevated-none); padding:0; overflow:hidden; }
+    sl-sidebar-page { display:block; background:var(--bg-elevated-none); min-height:500px; }
+    sl-sidebar-page .header, sl-sidebar-page .afspraak-header { background:var(--bg-elevated-none); }
+    sl-sidebar-page .afspraak-header { padding:20px; border-bottom:1px solid var(--border-neutral-normal); }
+    sl-sidebar-page .content { padding:20px; }
+    sl-modal .swipe-container, sl-modal .afspraak-header, sl-modal .sluiten-icon { background:var(--bg-elevated-none); }
+    sl-modal .swipe-container { height:16px; }
+    sl-modal .afspraak-header { display:flex; align-items:center; gap:12px; padding:16px 0; }
+    sl-modal .sluiten-icon { float:right; padding:6px; border-radius:6px; }
+    sl-rooster-item-detail .tijd-locatie { display:flex; gap:12px; margin:16px 0; }
+    sl-rooster-item-detail .blok { flex:1; border:1px solid var(--border-neutral-normal); padding:12px; border-radius:8px; }
+    sl-rooster-item-detail .inhoud { background:var(--bg-elevated-weakest); padding:16px; border:1px solid var(--border-neutral-normal); border-radius:8px; }
+    hmy-internal-tag, hmy-pill, hmy-icon-plate { display:inline-block; background:var(--bg-neutral-weakest); padding:4px 8px; border-radius:6px; }
+    hmy-pill { background:var(--bg-primary-weakest); }
+    sl-modal > .background { background:var(--bg-mask-normal); padding:16px; margin:12px 0; color:white; border-radius:8px; }
+    sl-dagen-header sl-dag-header-tab { display:inline-block; background:var(--bg-neutral-none); padding:8px; }
+    input,button,select { font:inherit; } hmy-button button { padding:10px 16px; color:inherit; border:1px solid var(--border-neutral-normal); border-radius:8px; background:var(--bg-primary-weakest); }
+    #mod-setting-panel { position:static; background:var(--bg-elevated-none); border-radius:16px; padding:20px; }
+    #results { white-space:pre-wrap; font:14px/1.6 monospace; color:#16432d; }
+    @media(max-width:760px){ .grid{grid-template-columns:1fr;}main{padding:12px;} }
+</style>
+<main>
+    <div class="intro"><h1>Glaseffect — lokale testpagina</h1><p>Voorbeeld met fictieve inhoud en Somtoday-componentnamen. Dit is geen ingelogde Somtoday-pagina.</p><label>Thema <select id="theme"><option value="">Licht</option><option value="dark">Donker</option><option value="night">Night</option></select></label> <button id="run-tests">Voer controles uit</button><pre id="results"></pre></div>
+    <div class="grid"><div>
+        <sl-home>
+            <sl-rooster>
+                <sl-header id="sample-navigation"><strong>Somtoday</strong> · Rooster · Cijfers<sl-scrollable-title id="sample-nested-header">Woensdag 23 september</sl-scrollable-title></sl-header>
+                <sl-dagen-header id="sample-headers"><sl-dag-header-tab>Ma</sl-dag-header-tab> <sl-dag-header-tab>Di</sl-dag-header-tab> <sl-dag-header-tab>Wo</sl-dag-header-tab></sl-dagen-header>
+                <sl-rooster-item id="sample-roster"><strong id="sample-text">Wiskunde</strong><p>09:00 – 10:00 · lokaal 103</p><hmy-button><button>Lesdetails</button></hmy-button></sl-rooster-item>
+            </sl-rooster>
+            <sl-studiewijzer><sl-studiewijzer-item id="sample-study">Huiswerk afgerond</sl-studiewijzer-item></sl-studiewijzer>
+            <sl-cijfers><sl-vakresultaat-item id="sample-grades">Voorbeeldcijfer: 7,8</sl-vakresultaat-item></sl-cijfers>
+            <sl-berichten><sl-bericht-samenvatting id="sample-messages">Voorbeeldbericht</sl-bericht-samenvatting></sl-berichten>
+            <hmy-geen-data id="sample-other">Overig paneel</hmy-geen-data>
+            <sl-root><hmy-button><button id="sample-controls">Voorbeeldknop</button></hmy-button></sl-root>
+        </sl-home>
+        <sl-sidebar>
+            <div class="background" id="sample-sidebar-overlay"></div>
+            <div class="content-container" id="sample-sidebar-container">
+                <div class="content"><sl-sidebar-page id="sample-sidebar-page">
+                    <sl-rooster-item-detail>
+                        <div class="header" id="sample-sidebar-header"><div class="afspraak-header" id="sample-sidebar-title"><strong>Lesdetail op desktop</strong></div></div>
+                        <div class="content"><p>Het hele paneel, inclusief de lege ruimte hieronder, moet glas worden.</p><div class="inhoud">Voorbeeldomschrijving</div></div>
+                    </sl-rooster-item-detail>
+                </sl-sidebar-page></div>
+            </div>
+        </sl-sidebar>
+        <sl-modal>
+            <div class="background" id="sample-overlay">Voorbeeld van de donkere laag achter een pop-up</div>
+            <div class="content-container" id="sample-panels">
+                <div class="swipe-container" id="sample-swipe"></div>
+                <i class="sluiten-icon" id="sample-close" aria-label="Sluiten">×</i>
+                <sl-rooster-item-detail>
+                    <div class="header" id="sample-detail-header"><div class="afspraak-header" id="sample-appointment-header"><hmy-icon-plate id="sample-icon">▤</hmy-icon-plate><strong>Wiskunde</strong></div></div>
+                    <div class="content">
+                        <hmy-tag><hmy-internal-tag id="sample-badges">Voorbeelddocent</hmy-internal-tag></hmy-tag>
+                        <div class="tijd-locatie"><div class="blok">Tijd <hmy-pill id="sample-pill">2e uur</hmy-pill><p>09:00 – 10:00</p></div><div class="blok">Locatie<p>103</p></div></div>
+                        <div class="inhoud" id="sample-details"><strong>Omschrijving</strong><p>Dit is fictieve lesinformatie.</p></div>
+                        <h3>Takenlijst</h3><sl-studiewijzer-item class="afgevinkt" id="sample-homework">Huiswerk afgerond ✓</sl-studiewijzer-item>
+                        <hmy-button><button>Studiemateriaal →</button></hmy-button>
+                    </div>
+                </sl-rooster-item-detail>
+            </div>
+        </sl-modal>
+    </div><div id="mod-setting-panel"></div></div>
+</main>
+<script src="../Chromium/scripts/glass.js"></script>
+<script>
+let settings = { ...SomtodayGlass.defaults, glass_enabled: true, primarycolor:'#0067c2', layout:1 };
+const get = key => settings[key];
+function render() {
+    document.getElementById('mod-setting-panel').innerHTML = '<h2>Glaseffect</h2>' + SomtodayGlass.render(get) + '<button id="save">Opslaan</button>';
+    SomtodayGlass.bind();
+    document.getElementById('save').onclick = () => {
+        for (const input of document.querySelectorAll('.mod-custom-setting')) settings[input.id] = input.type === 'checkbox' ? input.checked : Number(input.value);
+        SomtodayGlass.update(get);
+    };
+    SomtodayGlass.update(get);
+}
+document.getElementById('theme').onchange = e => {
+    document.documentElement.classList.remove('dark','night');
+    if(e.target.value) document.documentElement.classList.add(e.target.value);
+};
+document.getElementById('run-tests').onclick = () => {
+    const saved = {...settings};
+    const originalTheme = document.getElementById('theme').value;
+    const results = [];
+    function check(condition, message) { if(!condition) throw Error(message); results.push('✓ '+message); }
+    const style = id => getComputedStyle(document.getElementById(id));
+    function alpha(id) {
+        const color = style(id).backgroundColor;
+        if(color.includes('/')) return Number(color.split('/')[1].replace(')','').trim());
+        if(color.startsWith('rgba')) return Number(color.slice(5,-1).split(',')[3]);
+        return 1;
+    }
+    try {
+        for(const theme of ['', 'dark', 'night']) {
+            document.documentElement.classList.remove('dark','night');
+            if(theme) document.documentElement.classList.add(theme);
+            settings = {...SomtodayGlass.defaults,glass_enabled:false,primarycolor:'#0067c2',layout:1};
+            SomtodayGlass.update(get);
+            const originalAlphas = Object.fromEntries(SomtodayGlass.groups.map(group => [group.id,alpha('sample-'+group.id)]));
+            settings.glass_enabled = true;
+            settings.glass_overlay = true;
+            SomtodayGlass.update(get);
+            for(const group of SomtodayGlass.groups) {
+                check(Math.abs(alpha('sample-'+group.id)-originalAlphas[group.id]*.55)<1/255, (theme||'licht')+': transparantie '+group.label);
+                settings['glass_'+group.id]=false;
+                SomtodayGlass.update(get);
+                check(Math.abs(alpha('sample-'+group.id)-originalAlphas[group.id])<1/255, (theme||'licht')+': uitschakelen '+group.label);
+                settings['glass_'+group.id]=true;
+            }
+            SomtodayGlass.update(get);
+            check(style('sample-roster').backdropFilter==='blur(12px)', 'Blur werkt in '+(theme||'licht'));
+            check(style('sample-text').opacity==='1'&&style('sample-text').filter==='none','Tekst blijft scherp in '+(theme||'licht'));
+            check(Math.abs(alpha('mod-setting-panel')-.55)<.001&&style('mod-setting-panel').backdropFilter==='blur(12px)','Mod-menu krijgt transparantie en blur ('+(theme||'licht')+')');
+            check(style('mod-setting-panel').opacity==='1'&&style('mod-setting-panel').filter==='none','Mod-menu vervaagt geen tekst of bediening ('+(theme||'licht')+')');
+            check(Math.abs(alpha('sample-sidebar-container')-.55)<.001,'Buitenste desktopcontainer is glas ('+(theme||'licht')+')');
+            check(alpha('sample-sidebar-page')===0&&alpha('sample-sidebar-header')===0&&alpha('sample-sidebar-title')===0,'Geen ondoorzichtig vlak achter of binnen het desktopdetail ('+(theme||'licht')+')');
+            check(style('sample-sidebar-container').backdropFilter==='blur(12px)'&&style('sample-sidebar-page').backdropFilter==='none','Desktopdetail heeft één blurlaag ('+(theme||'licht')+')');
+            for (const id of ['sample-swipe','sample-detail-header','sample-appointment-header']) check(alpha(id)===0,'Geen extra achtergrondlaag: '+id+' ('+(theme||'licht')+')');
+            settings.glass_panels=false;
+            SomtodayGlass.update(get);
+            check(alpha('sample-swipe')===1&&alpha('sample-appointment-header')===1,'Uitschakelen herstelt de titelbalk en bovenstrook ('+(theme||'licht')+')');
+            check(alpha('sample-sidebar-container')===1&&alpha('sample-sidebar-page')===1,'Uitschakelen herstelt beide desktopachtergronden ('+(theme||'licht')+')');
+            check(alpha('mod-setting-panel')===1&&style('mod-setting-panel').backdropFilter==='none','Paneelschakelaar schakelt ook het Mod-menu uit ('+(theme||'licht')+')');
+            check(Math.abs(alpha('sample-details')-.55)<.001,'Detailvakken werken onafhankelijk van de pop-up ('+(theme||'licht')+')');
+            settings.glass_panels=true;
+            SomtodayGlass.update(get);
+        }
+        const menu=document.getElementById('mod-setting-panel');
+        const menuParent=menu.parentElement;
+        const menuSibling=menu.nextSibling;
+        const host=document.createElement('sl-modal');
+        host.innerHTML='<div class="content-container" id="sample-mod-host"></div>';
+        document.body.appendChild(host);
+        try {
+            host.firstElementChild.appendChild(menu);
+            check(alpha('mod-setting-panel')===0&&Math.abs(alpha('sample-mod-host')-.55)<.001,'Mod-menu in accountvenster heeft geen extra ondoorzichtige laag');
+            check(style('mod-setting-panel').backdropFilter==='none'&&style('sample-mod-host').backdropFilter==='blur(12px)','Mod-menu in accountvenster deelt één blurlaag');
+        } finally { menuParent.insertBefore(menu,menuSibling); host.remove(); }
+        check(style('sample-nested-header').backdropFilter==='none', 'Geen dubbele blur op geneste headers');
+        settings.glass_navigation=false;
+        SomtodayGlass.update(get);
+        check(style('sample-nested-header').backdropFilter==='blur(12px)', 'Headers werken onafhankelijk van de navigatieschakelaar');
+        settings.glass_blur=0;
+        SomtodayGlass.update(get);
+        check(style('sample-roster').backdropFilter==='blur(0px)', 'Transparantie zonder blur');
+        settings.glass_transparency=0; settings.glass_blur=12;
+        SomtodayGlass.update(get);
+        check(alpha('sample-roster')===1 && style('sample-roster').backdropFilter==='blur(0px)', '0% transparantie is ondoorzichtig zonder onnodige blur');
+        settings.glass_transparency=100;
+        SomtodayGlass.update(get);
+        check(alpha('sample-roster')===0, '100% transparantie');
+        for(const id of ['sample-panels','sample-details','sample-swipe','sample-appointment-header','sample-badges','sample-pill','sample-icon','sample-homework','sample-close']) check(alpha(id)===0,'Geheel transparant lesdetail: '+id);
+        check(style('sample-close').opacity==='1'&&style('sample-close').color!=='rgba(0, 0, 0, 0)','Sluiticoon blijft zichtbaar');
+        const dynamic=document.createElement('sl-rooster-item');
+        dynamic.id='sample-dynamic';
+        document.querySelector('sl-rooster').appendChild(dynamic);
+        check(alpha('sample-dynamic')===0, 'Nieuw toegevoegde Somtoday-elementen krijgen automatisch het effect');
+        dynamic.remove();
+        settings.glass_enabled=false;
+        SomtodayGlass.update(get);
+        check(!document.getElementById('mod-glass-style') && alpha('sample-roster')===1, 'Uitschakelen verwijdert het effect volledig');
+        settings.ui=60; settings.uiblur=8;
+        SomtodayGlass.update(get);
+        check(Math.abs(alpha('sample-sidebar-container')-.4)<.001&&Math.abs(alpha('sample-panels')-.4)<.001,'Bestaande UI-transparantie werkt op desktopzijpanelen en modals');
+        check(alpha('sample-sidebar-page')===0&&alpha('sample-sidebar-title')===0,'Bestaande UI-transparantie verwijdert de binnenste ondoorzichtige lagen');
+        check(style('sample-sidebar-container').backdropFilter==='blur(8px)'&&style('sample-sidebar-page').backdropFilter==='none','Bestaande UI-blur werkt op de buitenste desktoplaag');
+        check(Math.abs(alpha('mod-setting-panel')-.4)<.001&&style('mod-setting-panel').backdropFilter==='blur(8px)','Mod-menu volgt bestaande UI-transparantie en UI-blur');
+        settings.ui=30;
+        SomtodayGlass.update(get);
+        check(Math.abs(alpha('sample-sidebar-container')-.7)<.001,'Wijzigen van bestaande UI-transparantie werkt direct');
+        settings.glass_enabled=true; settings.glass_transparency=45;
+        SomtodayGlass.update(get);
+        check(Math.abs(alpha('sample-sidebar-container')-.55)<.001,'Geavanceerd glaseffect vervangt de bestaande paneeltransparantie');
+        settings.glass_enabled=false; settings.ui=0;
+        SomtodayGlass.update(get);
+        check(!document.getElementById('mod-glass-style')&&alpha('sample-sidebar-container')===1&&alpha('sample-sidebar-page')===1,'Beide modi uit herstelt het oorspronkelijke desktopdetail');
+        check(alpha('mod-setting-panel')===1&&style('mod-setting-panel').backdropFilter==='none','Beide modi uit herstelt ook het Mod-menu');
+        document.getElementById('results').textContent=results.length+' controles geslaagd.\n'+results.join('\n');
+    } catch(error) { document.getElementById('results').textContent=results.join('\n')+'\nMISLUKT: '+error.message; }
+    finally {
+        settings=saved;
+        document.documentElement.classList.remove('dark','night');
+        if(originalTheme) document.documentElement.classList.add(originalTheme);
+        render();
+    }
+};
+render();
+</script>
+</html>
